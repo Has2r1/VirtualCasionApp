@@ -20,6 +20,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.compose.material.Card
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun EventsScreen(navController: NavHostController) {
@@ -48,27 +52,22 @@ fun EventsScreen(navController: NavHostController) {
                     .width(125.dp)
                     .height(40.dp)
                     .clip(RoundedCornerShape(20.dp))
-                    .clickable(onClick = { navController.popBackStack() }) // Возврат на предыдущий экран
+                    .clickable(onClick = { navController.popBackStack() })
             ) {
-                // Фоновое изображение кнопки
                 Image(
-                    painter = painterResource(id = R.drawable.back_btn_bckg), // Укажи своё изображение
+                    painter = painterResource(id = R.drawable.back_btn_bckg),
                     contentDescription = "Back Button Background",
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(20.dp)),
                     contentScale = ContentScale.Crop
                 )
-
-                // Затемняющий слой (опционально, для лучшей читаемости текста)
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(RoundedCornerShape(20.dp))
-                        .background(Color.Black.copy(alpha = 0.3f)) // Полупрозрачный чёрный слой
+                        .background(Color.Black.copy(alpha = 0.3f))
                 )
-
-                // Текст "Назад"
                 Text(
                     text = "Назад",
                     fontSize = 22.sp,
@@ -87,7 +86,7 @@ fun EventsScreen(navController: NavHostController) {
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp)) // Отступ между кнопкой и плашками
+            Spacer(modifier = Modifier.width(16.dp))
 
             // Gold Balance
             Row(
@@ -214,45 +213,49 @@ fun EventsScreen(navController: NavHostController) {
             }
         }
 
-        // Row для 5 блоков посередине экрана
         Row(
             modifier = Modifier
                 .align(Alignment.Center)
-                .padding(top = 120.dp, bottom = 120.dp) // Отступы сверху и снизу, чтобы не перекрывать верхние и нижние элементы
-                .fillMaxWidth(),
+                .padding(top = 80.dp, bottom = 80.dp)
+                .fillMaxWidth()
+                .wrapContentHeight(),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            // Заглушки для 5 блоков (временные, для проверки расположения)
-            Box(
-                modifier = Modifier
-                    .width(150.dp)
-                    .height(150.dp)
-                    .background(Color(0xFF1F7472))
-            ) { Text("Блок 1") }
-            Box(
-                modifier = Modifier
-                    .width(150.dp)
-                    .height(150.dp)
-                    .background(Color(0xFF1F7472))
-            ) { Text("Блок 2") }
-            Box(
-                modifier = Modifier
-                    .width(150.dp)
-                    .height(150.dp)
-                    .background(Color(0xFF1F7472))
-            ) { Text("Блок 3") }
-            Box(
-                modifier = Modifier
-                    .width(150.dp)
-                    .height(150.dp)
-                    .background(Color(0xFF1F7472))
-            ) { Text("Блок 4") }
-            Box(
-                modifier = Modifier
-                    .width(150.dp)
-                    .height(150.dp)
-                    .background(Color(0xFF1F7472))
-            ) { Text("Блок 5") }
+            EventDetailedBlock(
+                title = "Добыча рудника",
+                progress = 20,
+                time = "14ч. 30мин.",
+                reward = "Ожидаемая награда: 10 000",
+                onCancelClick = { /* Логика отмены */ }
+            )
+            EventDetailedBlock(
+                title = "Завод",
+                progress = 55,
+                time = "4ч. 15мин.",
+                reward = "Ожидаемая награда: 21 000",
+                onCancelClick = { /* Логика отмены */ }
+            )
+            EventDetailedBlock(
+                title = "Лесопилка",
+                progress = 10,
+                time = "15ч. 42мин.",
+                reward = "Ожидаемая награда: 7 000",
+                onCancelClick = { /* Логика отмены */ }
+            )
+            EventDetailedBlock(
+                title = "Ферма",
+                progress = 94,
+                time = "2ч. 0мин.",
+                reward = "Ожидаемая награда: 5 000",
+                onCancelClick = { /* Логика отмены */ }
+            )
+            EventDetailedBlock(
+                title = "Экскаватор",
+                progress = 68,
+                time = "7ч. 24мин.",
+                reward = "Ожидаемая награда: 17 000",
+                onCancelClick = { /* Логика отмены */ }
+            )
         }
 
         // Navigation Bar
@@ -261,6 +264,171 @@ fun EventsScreen(navController: NavHostController) {
                 .align(Alignment.BottomCenter)
         ) {
             NavigationBar(navController)
+        }
+    }
+}
+
+@Composable
+fun EventDetailedBlock(
+    title: String,
+    progress: Int,
+    time: String,
+    reward: String,
+    onCancelClick: () -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .width(150.dp)
+            .height(220.dp)
+            .padding(8.dp)
+            .border(2.dp, Color(0xFF11403F), RoundedCornerShape(20.dp)),
+        shape = RoundedCornerShape(20.dp),
+        backgroundColor = Color(0xFF2DA6A3),
+        elevation = 8.dp
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(vertical = 8.dp, horizontal = 12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .padding(bottom = 2.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = title,
+                    fontSize = 16.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    style = androidx.compose.ui.text.TextStyle(
+                        shadow = Shadow(
+                            color = Color.Black,
+                            offset = Offset(2f, 2f),
+                            blurRadius = 4f
+                        )
+                    ),
+                    modifier = Modifier
+                        .wrapContentSize(align = Alignment.Center)
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.95f)
+                    .height(40.dp)
+                    .border(1.dp, Color(0xFF11403F), RoundedCornerShape(10.dp))
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xFF77C5C4))
+                    .padding(4.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = reward,
+                    fontSize = 12.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    style = androidx.compose.ui.text.TextStyle(
+                        shadow = Shadow(
+                            color = Color.Black.copy(alpha = 0.7f),
+                            offset = Offset(2f, 2f),
+                            blurRadius = 1f
+                        )
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.95f)
+                    .height(20.dp)
+                    .border((0.5).dp, Color(0xFFA25757), RoundedCornerShape(40.dp))
+                    .clip(RoundedCornerShape(40.dp)),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color(0xFFD4A59A))
+                        .clip(RoundedCornerShape(40.dp))
+                )
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(progress / 100f)
+                        .height(25.dp)
+                        .clip(RoundedCornerShape(40.dp))
+                        .background(Color(0xFFC86B6B))
+                )
+
+                Text(
+                    text = "$progress%",
+                    fontSize = 14.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    style = androidx.compose.ui.text.TextStyle(
+                        shadow = Shadow(
+                            color = Color.Black.copy(alpha = 0.7f),
+                            offset = Offset(2f, 2f),
+                            blurRadius =1f
+                        )
+                    ),
+                    modifier = Modifier
+                        .matchParentSize()
+                        .wrapContentSize(align = Alignment.Center)
+                )
+            }
+
+            Text(
+                text = time,
+                fontSize = 16.sp,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                style = androidx.compose.ui.text.TextStyle(
+                    shadow = Shadow(
+                        color = Color.Black.copy(alpha = 0.7f),
+                        offset = Offset(2f, 2f),
+                        blurRadius = 3f
+                    )
+                ),
+                modifier = Modifier
+                    .padding(bottom = 8.dp)
+                    .padding(top = 4.dp)
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.8f)
+                    .height(30.dp)
+                    .clip(RoundedCornerShape(15.dp))
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(Color(0xFFEE7F7F), Color(0xFFB22222))
+                        )
+                    )
+                    .clickable(onClick = onCancelClick),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = "Отменить",
+                    fontSize = 14.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    style = androidx.compose.ui.text.TextStyle(
+                        shadow = Shadow(
+                            color = Color.Black.copy(alpha = 0.7f),
+                            offset = Offset(2f, 2f),
+                            blurRadius = 3f
+                        )
+                    )
+                )
+            }
         }
     }
 }
