@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.compose.material.Card
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.style.TextOverflow
@@ -35,7 +36,8 @@ fun EventsScreen(navController: NavHostController) {
         Image(
             painter = painterResource(id = R.drawable.events_screen_bckg),
             contentDescription = null,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize(),
             contentScale = ContentScale.Crop
         )
 
@@ -59,14 +61,9 @@ fun EventsScreen(navController: NavHostController) {
                     contentDescription = "Back Button Background",
                     modifier = Modifier
                         .fillMaxSize()
+                        .alpha(0.8f)
                         .clip(RoundedCornerShape(20.dp)),
                     contentScale = ContentScale.Crop
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(Color.Black.copy(alpha = 0.3f))
                 )
                 Text(
                     text = "Назад",
