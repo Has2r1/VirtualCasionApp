@@ -187,18 +187,18 @@ fun AutomatsScreen(navController: NavHostController) {
                 .align(Alignment.TopCenter)
                 .width(600.dp)
                 .height(250.dp)
-                .padding(top = 20.dp) // Увеличил отступ сверху, чтобы подвинуть блок выше
-                .clip(RoundedCornerShape(20.dp)) // Закругление краёв
-                .background(Color.Black.copy(alpha = 0.8f)) // Потемнённый фон
+                .padding(top = 20.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color.Black.copy(alpha = 0.8f))
         ) {
             Image(
                 painter = painterResource(id = R.drawable.slot_machine),
                 contentDescription = "Slot Machine",
                 modifier = Modifier
-                    .fillMaxSize() // Заполняет весь Box
-                    .clip(RoundedCornerShape(20.dp)) // Закругление краёв изображения
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(20.dp))
                     .alpha(0.9f),
-                contentScale = ContentScale.Crop // Изменён на Crop, чтобы убрать боковые отступы
+                contentScale = ContentScale.Crop
             )
 
             // Три блока посередине
@@ -206,20 +206,20 @@ fun AutomatsScreen(navController: NavHostController) {
                 modifier = Modifier
                     .align(Alignment.Center)
                     .fillMaxWidth()
-                    .height(180.dp) // Высота блоков, чтобы они занимали основную часть
-                    .padding(horizontal = 20.dp), // Отступы от краёв
+                    .height(180.dp)
+                    .padding(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Первый блок
                 Box(
                     modifier = Modifier
-                        .width(120.dp) // Ширина каждого блока
-                        .height(180.dp) // Высота блока
-                        .clip(RoundedCornerShape(10.dp)) // Лёгкое закругление
+                        .width(120.dp)
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(10.dp))
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_slot), // Замени на иконку (например, с буквой "F")
+                        painter = painterResource(id = R.drawable.ic_slot),
                         contentDescription = "Slot Icon 1",
                         modifier = Modifier
                             .size(80.dp)
@@ -231,12 +231,12 @@ fun AutomatsScreen(navController: NavHostController) {
                 // Второй блок
                 Box(
                     modifier = Modifier
-                        .width(120.dp) // Ширина каждого блока
-                        .height(180.dp) // Высота блока
-                        .clip(RoundedCornerShape(10.dp)) // Лёгкое закругление
+                        .width(120.dp)
+                        .height(180.dp)
+                        .clip(RoundedCornerShape(10.dp))
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_slot), // Замени на иконку (например, с буквой "F")
+                        painter = painterResource(id = R.drawable.ic_slot),
                         contentDescription = "Slot Icon 2",
                         modifier = Modifier
                             .size(80.dp)
@@ -250,10 +250,10 @@ fun AutomatsScreen(navController: NavHostController) {
                     modifier = Modifier
                         .width(120.dp) // Ширина каждого блока
                         .height(180.dp) // Высота блока
-                        .clip(RoundedCornerShape(10.dp)) // Лёгкое закругление
+                        .clip(RoundedCornerShape(10.dp))
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.ic_slot), // Замени на иконку (например, с буквой "F")
+                        painter = painterResource(id = R.drawable.ic_slot),
                         contentDescription = "Slot Icon 3",
                         modifier = Modifier
                             .size(80.dp)
@@ -268,17 +268,17 @@ fun AutomatsScreen(navController: NavHostController) {
         Row(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 80.dp) // Увеличил отступ от навигационной панели
+                .padding(bottom = 80.dp)
                 .fillMaxWidth()
                 .height(60.dp)
-                .padding(horizontal = 16.dp), // Отступы от краёв
+                .padding(horizontal = 16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center // Сместил ближе к центру
+            horizontalArrangement = Arrangement.Center
         ) {
             // Левый бокс (Ставка)
             Box(
                 modifier = Modifier
-                    .width(280.dp) // Увеличил в 2 раза
+                    .width(280.dp)
                     .height(50.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
@@ -286,7 +286,7 @@ fun AutomatsScreen(navController: NavHostController) {
                             colors = listOf(Color(0xFF2DA6A3), Color(0xFF11403F))
                         )
                     )
-                    .padding(horizontal = 16.dp), // Увеличил внутренний отступ
+                    .padding(horizontal = 16.dp),
             ) {
                 Row(
                     modifier = Modifier
@@ -347,7 +347,7 @@ fun AutomatsScreen(navController: NavHostController) {
                 }
             }
 
-            Spacer(modifier = Modifier.width(16.dp)) // Отступ между плашками
+            Spacer(modifier = Modifier.width(16.dp))
 
             // Центральная кнопка (Спин)
             Box(
@@ -383,20 +383,20 @@ fun AutomatsScreen(navController: NavHostController) {
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp)) // Отступ между плашками
+            Spacer(modifier = Modifier.width(16.dp))
 
             // Правый бокс (Выигрыш)
             Box(
                 modifier = Modifier
-                    .width(280.dp) // Оставляем ширину
-                    .height(50.dp) // Оставляем высоту
-                    .clip(RoundedCornerShape(20.dp)) // Закругление краёв
+                    .width(280.dp)
+                    .height(50.dp)
+                    .clip(RoundedCornerShape(20.dp))
                     .background(
                         brush = Brush.linearGradient(
                             colors = listOf(Color(0xFF2DA6A3), Color(0xFF11403F))
                         )
                     )
-                    .padding(horizontal = 16.dp), // Увеличенный внутренний отступ
+                    .padding(horizontal = 16.dp),
             ) {
                 Row(
                     modifier = Modifier
@@ -406,26 +406,26 @@ fun AutomatsScreen(navController: NavHostController) {
                 ) {
                     Text(
                         text = "Выигрыш:",
-                        fontSize = 22.sp, // Увеличил шрифт до 22.sp, как в левом боксе
+                        fontSize = 22.sp,
                         color = Color.White,
                         textAlign = TextAlign.Start,
                         style = androidx.compose.ui.text.TextStyle(
                             shadow = Shadow(
                                 color = Color.Black,
                                 offset = Offset(2f, 2f),
-                                blurRadius = 2f // Уменьшил blurRadius до 2f, как в левом боксе
+                                blurRadius = 2f
                             )
                         ),
                         modifier = Modifier
                             .weight(1f)
-                            .padding(horizontal = 10.dp) // Добавил padding, как в левом боксе
+                            .padding(horizontal = 10.dp)
                     )
 
                     // Бокс с цифрами с красным градиентом
                     Box(
                         modifier = Modifier
-                            .width(120.dp) // Увеличил ширину до 120.dp, как в левом боксе
-                            .height(35.dp) // Увеличил высоту до 35.dp, как в левом боксе
+                            .width(120.dp)
+                            .height(35.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .background(
                                 brush = Brush.linearGradient(
@@ -439,14 +439,14 @@ fun AutomatsScreen(navController: NavHostController) {
                     ) {
                         Text(
                             text = "9999",
-                            fontSize = 20.sp, // Увеличил шрифт до 20.sp, как в левом боксе
+                            fontSize = 20.sp,
                             color = Color.White,
                             textAlign = TextAlign.Center,
                             style = androidx.compose.ui.text.TextStyle(
                                 shadow = Shadow(
                                     color = Color.Black,
                                     offset = Offset(2f, 2f),
-                                    blurRadius = 2f // Добавил тень, как в левом боксе
+                                    blurRadius = 2f
                                 )
                             )
                         )
