@@ -1,15 +1,20 @@
-package com.example.mainscreen
+package com.example.mainscreen.ui
 
-import androidx.compose.foundation.Canvas
+import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,27 +23,75 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.zIndex
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.mainscreen.R
+import com.example.mainscreen.AchievmentItem
+import com.example.mainscreen.NavigationBar
+import com.example.mainscreen.data.Achievement
+import com.example.mainscreen.presentation.ProfileState
+import com.example.mainscreen.presentation.ProfileViewModel
+import com.example.mainscreen.presentation.ProfileViewModelFactory
 
 @Composable
 fun ProfileScreen(navController: NavHostController) {
+    val context = LocalContext.current
+    val viewModel: ProfileViewModel = viewModel(factory = ProfileViewModelFactory(context))
+    val profileState by viewModel.profileState
+    // Состояние для управления отображением модального окна
+    val showEditDialog = remember { mutableStateOf(false) }
+    // Инициализируем newUsername текущим значением из profileState
+    var newUsername by remember {
+        mutableStateOf(
+            when (profileState) {
+                is ProfileState.Success -> (profileState as ProfileState.Success).profile.username
+                else -> "Username"
+            }
+        )
+    }
+    var newAvatarResId by remember {
+        mutableStateOf(
+            when (profileState) {
+                is ProfileState.Success -> (profileState as ProfileState.Success).profile.avatarResId
+                else -> R.drawable.ic_avatar
+            }
+        )
+    }
+
+    // Лаунчер для выбора изображения
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri: Uri? ->
+            uri?.let {
+                println("Выбрано изображение: $uri")
+                newAvatarResId = R.drawable.ic_avatar // Замени на реальную логику
+            }
+        }
+    )
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -51,7 +104,7 @@ fun ProfileScreen(navController: NavHostController) {
             contentScale = ContentScale.Crop
         )
 
-        // Row для кнопки "Назад", аватара, имени пользователя и кнопки редактирования
+        // Row для кнопки "Назад", аватара, имени пользователя, кнопки редактирования и демонстрационных кнопок
         Row(
             modifier = Modifier
                 .align(Alignment.TopStart)
@@ -98,19 +151,20 @@ fun ProfileScreen(navController: NavHostController) {
             // Круглый бокс для аватара пользователя
             Box(
                 modifier = Modifier
-                    .size(55.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
-                    .border((0.5).dp, Color.Black, CircleShape)
+                    .border(2.dp, Color(0xFF2DA6A3), CircleShape)
                     .background(Color(0xFF77C5C4))
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_avatar), // Замени на иконку аватара
+                    painter = painterResource(id = profileState.let { state ->
+                        if (state is ProfileState.Success) state.profile.avatarResId else R.drawable.ic_avatar
+                    }),
                     contentDescription = "User Avatar",
                     modifier = Modifier
-                        .size(46.dp)
+                        .size(36.dp)
                         .clip(CircleShape)
-                        .align(Alignment.Center)
-                        .border(2.dp, Color(0xFF2DA6A3), CircleShape),
+                        .align(Alignment.Center),
                     contentScale = ContentScale.Crop
                 )
             }
@@ -121,19 +175,20 @@ fun ProfileScreen(navController: NavHostController) {
             Box(
                 modifier = Modifier
                     .height(40.dp)
-                    .width(150.dp)
+                    .defaultMinSize(minWidth = 150.dp)
                     .clip(RoundedCornerShape(20.dp))
                     .background(
                         brush = Brush.linearGradient(
                             colors = listOf(Color(0xFF2DA6A3), Color(0xFF11403F))
                         )
                     )
-                    .border((0.5).dp, Color.Black, RoundedCornerShape(20.dp))
                     .padding(horizontal = 12.dp),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "Username",
+                    text = profileState.let { state ->
+                        if (state is ProfileState.Success) state.profile.username else "Username"
+                    },
                     fontSize = 18.sp,
                     color = Color.White,
                     textAlign = TextAlign.Center,
@@ -152,23 +207,132 @@ fun ProfileScreen(navController: NavHostController) {
             // Кнопка редактирования
             Box(
                 modifier = Modifier
-                    .size(45.dp)
+                    .size(40.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .background(
                         brush = Brush.linearGradient(
                             colors = listOf(Color(0xFF2DA6A3), Color(0xFF11403F))
                         )
                     )
-                    .border((0.5).dp, Color.Black, RoundedCornerShape(10.dp))
-                    .clickable(onClick = { /* Логика редактирования будет прописана позже */ })
+                    .clickable(onClick = { showEditDialog.value = true })
             ) {
                 Image(
-                    painter = painterResource(id = R.drawable.ic_edit), // Замени на иконку карандаша
+                    painter = painterResource(id = R.drawable.ic_edit),
                     contentDescription = "Edit Button",
                     modifier = Modifier
                         .size(24.dp)
                         .align(Alignment.Center),
                     contentScale = ContentScale.Fit
+                )
+            }
+
+            Spacer(modifier = Modifier.width(40.dp))
+
+            // Кнопка для увеличения прогресса первого достижения
+            Box(
+                modifier = Modifier
+                    .width(150.dp)
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .border(1.dp, Color.Black, RoundedCornerShape(10.dp))
+                    .background(Color(0xFF993232))
+                    .clickable(onClick = {
+                        if (profileState is ProfileState.Success) {
+                            val currentProfile = (profileState as ProfileState.Success).profile
+                            val updatedAchievements = currentProfile.achievements.toMutableList()
+                            val firstAchievement = updatedAchievements[0]
+                            val newProgress = (firstAchievement.progress + 0.1f).coerceAtMost(1.0f)
+                            updatedAchievements[0] = firstAchievement.copy(progress = newProgress)
+                            viewModel.updateAchievements(updatedAchievements)
+                        }
+                    })
+            ) {
+                Text(
+                    text = "Увеличить прогресс",
+                    fontSize = 14.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(Alignment.Center),
+                    style = androidx.compose.ui.text.TextStyle(
+                        shadow = Shadow(
+                            color = Color.Black,
+                            offset = Offset(2f, 2f),
+                            blurRadius = 3f
+                        )
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Кнопка для уменьшения прогресса первого достижения
+            Box(
+                modifier = Modifier
+                    .width(150.dp)
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .border(1.dp, Color.Black, RoundedCornerShape(10.dp))
+                    .background(Color(0xFF993232))
+                    .clickable(onClick = {
+                        if (profileState is ProfileState.Success) {
+                            val currentProfile = (profileState as ProfileState.Success).profile
+                            val updatedAchievements = currentProfile.achievements.toMutableList()
+                            val firstAchievement = updatedAchievements[0]
+                            val newProgress = (firstAchievement.progress - 0.1f).coerceAtLeast(0.0f)
+                            updatedAchievements[0] = firstAchievement.copy(progress = newProgress)
+                            viewModel.updateAchievements(updatedAchievements)
+                        }
+                    })
+            ) {
+                Text(
+                    text = "Уменьшить прогресс",
+                    fontSize = 14.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(Alignment.Center),
+                    style = androidx.compose.ui.text.TextStyle(
+                        shadow = Shadow(
+                            color = Color.Black,
+                            offset = Offset(2f, 2f),
+                            blurRadius = 3f
+                        )
+                    )
+                )
+            }
+
+            Spacer(modifier = Modifier.width(8.dp))
+
+            // Кнопка для увеличения количества спинов
+            Box(
+                modifier = Modifier
+                    .width(120.dp)
+                    .height(40.dp)
+                    .clip(RoundedCornerShape(10.dp))
+                    .border(1.dp, Color.Black, RoundedCornerShape(10.dp))
+                    .background(Color(0xFF993232))
+                    .clickable(onClick = {
+                        if (profileState is ProfileState.Success) {
+                            val currentProfile = (profileState as ProfileState.Success).profile
+                            val updatedStats = currentProfile.stats.toMutableMap()
+                            val currentSpins = updatedStats["Количество спинов:"] ?: 0
+                            updatedStats["Количество спинов:"] = currentSpins + 1
+                            viewModel.updateStats(updatedStats)
+                        }
+                    })
+            ) {
+                Text(
+                    text = "Добавить спин",
+                    fontSize = 14.sp,
+                    color = Color.White,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(Alignment.Center),
+                    style = androidx.compose.ui.text.TextStyle(
+                        shadow = Shadow(
+                            color = Color.Black,
+                            offset = Offset(2f, 2f),
+                            blurRadius = 3f
+                        )
+                    )
                 )
             }
         }
@@ -230,46 +394,59 @@ fun ProfileScreen(navController: NavHostController) {
                             .padding(horizontal = 7.dp),
                         verticalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        listOf(
-                            "Собранные коллекции:" to "10",
-                            "Полученные достижения:" to "10",
-                            "Потраченная валюта:" to "10",
-                            "Количество спинов:" to "10",
-                            "Крупнейший выигрыш:" to "10",
-                            "Завершенные события:" to "10",
-                            "Количество дней входа:" to "10"
-                        ).forEach { (label, value) ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
-                            ) {
+                        when (profileState) {
+                            is ProfileState.Loading -> {
                                 Text(
-                                    text = label,
+                                    text = "Загрузка...",
                                     fontSize = 16.sp,
                                     color = Color.White,
-                                    textAlign = TextAlign.Start,
-                                    style = androidx.compose.ui.text.TextStyle(
-                                        shadow = Shadow(
-                                            color = Color.Black,
-                                            offset = Offset(2f, 2f),
-                                            blurRadius = 3f
-                                        )
-                                    )
+                                    textAlign = TextAlign.Center
                                 )
+                            }
+                            is ProfileState.Error -> {
                                 Text(
-                                    text = value,
+                                    text = (profileState as ProfileState.Error).message,
                                     fontSize = 16.sp,
-                                    color = Color.White,
-                                    textAlign = TextAlign.End,
-                                    style = androidx.compose.ui.text.TextStyle(
-                                        shadow = Shadow(
-                                            color = Color.Black,
-                                            offset = Offset(2f, 2f),
-                                            blurRadius = 3f
-                                        )
-                                    )
+                                    color = Color.Red,
+                                    textAlign = TextAlign.Center
                                 )
+                            }
+                            is ProfileState.Success -> {
+                                val stats = (profileState as ProfileState.Success).profile.stats
+                                stats.forEach { (label, value) ->
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween
+                                    ) {
+                                        Text(
+                                            text = label,
+                                            fontSize = 16.sp,
+                                            color = Color.White,
+                                            textAlign = TextAlign.Start,
+                                            style = androidx.compose.ui.text.TextStyle(
+                                                shadow = Shadow(
+                                                    color = Color.Black,
+                                                    offset = Offset(2f, 2f),
+                                                    blurRadius = 3f
+                                                )
+                                            )
+                                        )
+                                        Text(
+                                            text = value.toString(),
+                                            fontSize = 16.sp,
+                                            color = Color.White,
+                                            textAlign = TextAlign.End,
+                                            style = androidx.compose.ui.text.TextStyle(
+                                                shadow = Shadow(
+                                                    color = Color.Black,
+                                                    offset = Offset(2f, 2f),
+                                                    blurRadius = 2f
+                                                )
+                                            )
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
@@ -282,7 +459,6 @@ fun ProfileScreen(navController: NavHostController) {
                     .width(450.dp)
                     .height(400.dp),
                 verticalArrangement = Arrangement.SpaceEvenly
-
             ) {
                 // Первая строка с двумя блоками достижений
                 Row(
@@ -290,19 +466,26 @@ fun ProfileScreen(navController: NavHostController) {
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    AchievmentItem(
-                        title = "Покоритель удачи",
-                        description = "Азартные и игровые достижения",
-                        iconResId = R.drawable.ic_clover,
-                        progress = 0.75f
-                    )
-
-                    AchievmentItem(
-                        title = "Магнат удачи",
-                        description = "Бизнес, финансы, ресурсы",
-                        iconResId = R.drawable.ic_sevens,
-                        progress = 0.75f
-                    )
+                    when (profileState) {
+                        is ProfileState.Success -> {
+                            val achievements = (profileState as ProfileState.Success).profile.achievements
+                            AchievmentItem(
+                                title = achievements[0].title,
+                                description = achievements[0].description,
+                                iconResId = achievements[0].iconResId,
+                                progress = achievements[0].progress
+                            )
+                            AchievmentItem(
+                                title = achievements[1].title,
+                                description = achievements[1].description,
+                                iconResId = achievements[1].iconResId,
+                                progress = achievements[1].progress
+                            )
+                        }
+                        else -> {
+                            Text("Загрузка достижений...")
+                        }
+                    }
                 }
 
                 // Вторая строка с двумя блоками достижений
@@ -310,19 +493,157 @@ fun ProfileScreen(navController: NavHostController) {
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    AchievmentItem(
-                        title = "Охотник за богатствами",
-                        description = "Исследования и приключения",
-                        iconResId = R.drawable.ic_chest,
-                        progress = 0.75f
-                    )
+                    when (profileState) {
+                        is ProfileState.Success -> {
+                            val achievements = (profileState as ProfileState.Success).profile.achievements
+                            AchievmentItem(
+                                title = achievements[2].title,
+                                description = achievements[2].description,
+                                iconResId = achievements[2].iconResId,
+                                progress = achievements[2].progress
+                            )
+                            AchievmentItem(
+                                title = achievements[3].title,
+                                description = achievements[3].description,
+                                iconResId = achievements[3].iconResId,
+                                progress = achievements[3].progress
+                            )
+                        }
+                        else -> {
+                            Text("Загрузка достижений...")
+                        }
+                    }
+                }
+            }
+        }
 
-                    AchievmentItem(
-                        title = "Легенда коллекций",
-                        description = "Собирание предметов, коллекций",
-                        iconResId = R.drawable.ic_book,
-                        progress = 0.75f
+        // Всплывающее окно для редактирования профиля
+        if (showEditDialog.value) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .clickable(
+                        onClick = { showEditDialog.value = false },
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
                     )
+                    .zIndex(1f)
+            ) {
+                // Модальное окно
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .width(300.dp)
+                        .height(240.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(Color(0xFF2DA6A3))
+                        .border(2.dp, Color(0xFF11403F), RoundedCornerShape(20.dp))
+                        .padding(16.dp)
+                        .clickable(
+                            onClick = { /* Пустой обработчик */ },
+                            indication = null,
+                            interactionSource = remember { MutableInteractionSource() }
+                        )
+                        .zIndex(2f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceEvenly
+                    ) {
+                        // Круг с аватаром
+                        Box(
+                            modifier = Modifier
+                                .size(100.dp)
+                                .clip(CircleShape)
+                                .border(2.dp, Color(0xFF2DA6A3), CircleShape)
+                                .background(Color(0xFF77C5C4))
+                                .clickable(onClick = { launcher.launch("image/*") })
+                        ) {
+                            Image(
+                                painter = painterResource(id = newAvatarResId),
+                                contentDescription = "User Avatar",
+                                modifier = Modifier
+                                    .size(96.dp)
+                                    .clip(CircleShape)
+                                    .align(Alignment.Center)
+                                    .border((0.5).dp, Color.Black, CircleShape),
+                                contentScale = ContentScale.Crop
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Поле ввода для имени пользователя
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .border(1.dp, Color(0xFF11403F), RoundedCornerShape(10.dp))
+                                .background(
+                                    brush = Brush.linearGradient(
+                                        colors = listOf(Color(0xFF11403F), Color(0xFF2DA6A3)),
+                                        start = Offset(0f, 150f),
+                                        end = Offset(0f, 0f)
+                                    )
+                                )
+                                .padding(horizontal = 12.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            BasicTextField(
+                                value = newUsername,
+                                onValueChange = { newUsername = it },
+                                textStyle = androidx.compose.ui.text.TextStyle(
+                                    fontSize = 20.sp,
+                                    color = Color.White,
+                                    textAlign = TextAlign.Center,
+                                    letterSpacing = 2.sp,
+                                    shadow = Shadow(
+                                        color = Color.Black,
+                                        offset = Offset(2f, 2f),
+                                        blurRadius = 3f
+                                    )
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        // Кнопка сохранения
+                        Box(
+                            modifier = Modifier
+                                .width(120.dp)
+                                .height(40.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .border((0.5).dp, Color.Black, RoundedCornerShape(10.dp))
+                                .background(Color(0xFF77C5C4))
+                                .clickable(onClick = {
+                                    if (newUsername.isNotEmpty()) {
+                                        viewModel.updateProfile(newUsername, newAvatarResId)
+                                        showEditDialog.value = false
+                                    }
+                                })
+                        ) {
+                            Text(
+                                text = "Сохранить",
+                                fontSize = 18.sp,
+                                color = Color.White,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.align(Alignment.Center),
+                                style = androidx.compose.ui.text.TextStyle(
+                                        shadow = Shadow(
+                                            color = Color.Black,
+                                            offset = Offset(2f, 2f),
+                                            blurRadius = 3f
+                                        )
+                                )
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -333,139 +654,6 @@ fun ProfileScreen(navController: NavHostController) {
                 .align(Alignment.BottomCenter)
         ) {
             NavigationBar(navController)
-        }
-    }
-}
-
-@Composable
-fun AchievmentItem(
-    title: String,
-    description: String,
-    iconResId: Int,
-    progress: Float = 0.75f,
-    modifier: Modifier = Modifier
-) {
-    Box(
-        modifier = modifier
-            .width(200.dp)
-            .height(120.dp)
-            .clip(RoundedCornerShape(15.dp))
-            .background(Color(0xFF2DA6A3))
-            .border(2.dp, Color(0xFF11403F), RoundedCornerShape(15.dp))
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.SpaceAround
-        ) {
-            // Первая строка: иконка, название и прогресс-бар
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Иконка
-                Box(
-                    modifier = Modifier
-                        .size(45.dp)
-                        .clip(CircleShape)
-                        .border((0.3).dp, Color.Black, CircleShape)
-                        .background(Color(0xFF77C5C4)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = iconResId),
-                        contentDescription = "$title Icon",
-                        modifier = Modifier.size(35.dp)
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(7.dp))
-
-                // Название
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(40.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(Color(0xFF77C5C4))
-                        .border(0.5.dp, Color(0xFF1E6C6B), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 3.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = title,
-                        fontSize = 13.sp,
-                        color = Color.White,
-                        textAlign = TextAlign.Center,
-                        style = androidx.compose.ui.text.TextStyle(
-                            shadow = Shadow(
-                                color = Color.Black,
-                                offset = Offset(2f, 2f),
-                                blurRadius = 3f
-                            )
-                        ),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(7.dp))
-
-                // Круглый прогресс-бар
-                Box(
-                    modifier = Modifier
-                        .size(30.dp)
-                        .clip(CircleShape)
-                ) {
-                    Canvas(
-                        modifier = Modifier
-                            .size(30.dp)
-                    ) {
-                        // Фон круга
-                        drawCircle(
-                            color = Color.White,
-                            radius = size.minDimension / 2,
-                            style = Stroke(width = 6.dp.toPx())
-                        )
-                        // Прогресс
-                        drawArc(
-                            color = Color(color = 0xFF1E6C6B),
-                            startAngle = -90f,
-                            sweepAngle = 360f * progress,
-                            useCenter = false,
-                            style = Stroke(width = 6.dp.toPx()),
-                            topLeft = Offset(0f, 0f),
-                            size = size
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            // Вторая строка: описание
-            Text(
-                text = description,
-                fontSize = 12.sp,
-                color = Color.White,
-                textAlign = TextAlign.Center,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(30.dp),
-                style = androidx.compose.ui.text.TextStyle(
-                    shadow = Shadow(
-                        color = Color.Black,
-                        offset = Offset(2f, 2f),
-                        blurRadius = 3f
-                    )
-                )
-            )
         }
     }
 }

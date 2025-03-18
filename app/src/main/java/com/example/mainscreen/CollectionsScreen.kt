@@ -361,3 +361,136 @@ fun CollectionItem(
         }
     }
 }
+
+@Composable
+fun AchievmentItem(
+    title: String,
+    description: String,
+    iconResId: Int,
+    progress: Float = 0.75f,
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier
+            .width(200.dp)
+            .height(120.dp)
+            .clip(RoundedCornerShape(15.dp))
+            .background(Color(0xFF2DA6A3))
+            .border(2.dp, Color(0xFF11403F), RoundedCornerShape(15.dp))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.SpaceAround
+        ) {
+            // Первая строка: иконка, название и прогресс-бар
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                // Иконка
+                Box(
+                    modifier = Modifier
+                        .size(45.dp)
+                        .clip(CircleShape)
+                        .border((0.3).dp, Color.Black, CircleShape)
+                        .background(Color(0xFF77C5C4)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = iconResId),
+                        contentDescription = "$title Icon",
+                        modifier = Modifier.size(35.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(7.dp))
+
+                // Название
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(40.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0xFF77C5C4))
+                        .border(0.5.dp, Color(0xFF1E6C6B), RoundedCornerShape(8.dp))
+                        .padding(horizontal = 3.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = title,
+                        fontSize = 13.sp,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        style = androidx.compose.ui.text.TextStyle(
+                            shadow = Shadow(
+                                color = Color.Black,
+                                offset = Offset(2f, 2f),
+                                blurRadius = 3f
+                            )
+                        ),
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(7.dp))
+
+                // Круглый прогресс-бар
+                Box(
+                    modifier = Modifier
+                        .size(30.dp)
+                        .clip(CircleShape)
+                ) {
+                    Canvas(
+                        modifier = Modifier
+                            .size(30.dp)
+                    ) {
+                        // Фон круга
+                        drawCircle(
+                            color = Color.White,
+                            radius = size.minDimension / 2,
+                            style = Stroke(width = 6.dp.toPx())
+                        )
+                        // Прогресс
+                        drawArc(
+                            color = Color(color = 0xFF1E6C6B),
+                            startAngle = -90f,
+                            sweepAngle = 360f * progress,
+                            useCenter = false,
+                            style = Stroke(width = 6.dp.toPx()),
+                            topLeft = Offset(0f, 0f),
+                            size = size
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(10.dp))
+
+            // Вторая строка: описание
+            Text(
+                text = description,
+                fontSize = 12.sp,
+                color = Color.White,
+                textAlign = TextAlign.Center,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(30.dp),
+                style = androidx.compose.ui.text.TextStyle(
+                    shadow = Shadow(
+                        color = Color.Black,
+                        offset = Offset(2f, 2f),
+                        blurRadius = 3f
+                    )
+                )
+            )
+        }
+    }
+}

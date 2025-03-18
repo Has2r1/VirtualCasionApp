@@ -1,33 +1,53 @@
 [versions]
 activityComposeVersion = "1.8.2"
 agp = "8.9.0"
+androidxActivityCompose = "1.7.2"
+androidxActivityComposeVersion = "1.10.1"
+androidxLifecycleRuntimeKtx = "2.8.7"
+androidxUi = "1.5.0"
 foundation = "1.7.8"
 foundationVersion = "1.5.4"
+gson = "2.10.1"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
+lifecycleRuntimeCompose = "2.8.7"
 lifecycleRuntimeKtx = "2.6.1"
 activityCompose = "1.8.0"
 composeBom = "2024.09.00"
 lifecycleRuntimeKtxVersion = "2.6.2"
+lifecycleViewmodelKtx = "2.8.7"
 material = "1.7.8"
+materialVersion = "1.5.0"
 navigationCompose = "2.8.8"
+runtime = "1.7.8"
 ui = "1.7.8"
 uiToolingPreview = "1.7.8"
 navigationRuntimeAndroid = "2.9.0-alpha07"
 uiVersion = "1.5.4"
 
 [libraries]
+androidx-activity-compose-v1101 = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityComposeVersion" }
+androidx-activity-compose-v172 = { module = "androidx.activity:activity-compose", version.ref = "androidxActivityCompose" }
 androidx-activity-compose-v182 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "foundation" }
 androidx-foundation-v154 = { module = "androidx.compose.foundation:foundation", version.ref = "foundationVersion" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-runtime-compose-v287 = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 androidx-lifecycle-runtime-ktx-v262 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtxVersion" }
+androidx-lifecycle-runtime-ktx-v287 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidxLifecycleRuntimeKtx" }
+androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-viewmodel-ktx-v287 = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycleViewmodelKtx" }
 androidx-material = { module = "androidx.compose.material:material", version.ref = "material" }
+androidx-material-v150 = { module = "androidx.compose.material:material", version.ref = "materialVersion" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+androidx-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "runtime" }
+androidx-ui-v150 = { module = "androidx.compose.ui:ui", version.ref = "androidxUi" }
 androidx-ui-v154 = { module = "androidx.compose.ui:ui", version.ref = "uiVersion" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }

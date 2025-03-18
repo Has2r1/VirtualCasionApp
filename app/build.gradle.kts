@@ -69,6 +69,19 @@ dependencies {
     implementation(libs.androidx.foundation.v154)
     implementation(libs.androidx.ui.v154)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx.v287)
+    implementation(libs.androidx.activity.compose.v172)
+
+    implementation (libs.androidx.runtime)
+    implementation (libs.androidx.ui.v150)
+    implementation (libs.androidx.material.v150)
+    implementation (libs.androidx.activity.compose.v1101)
+    implementation (libs.androidx.lifecycle.viewmodel.ktx.v287)
+    implementation (libs.androidx.lifecycle.runtime.ktx.v287)
+    implementation (libs.androidx.lifecycle.runtime.compose)
+    implementation (libs.androidx.lifecycle.runtime.compose.v287)
+    implementation (libs.gson)
 
 
 }
