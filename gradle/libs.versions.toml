@@ -5,8 +5,11 @@ androidxActivityCompose = "1.7.2"
 androidxActivityComposeVersion = "1.10.1"
 androidxLifecycleRuntimeKtx = "2.8.7"
 androidxUi = "1.5.0"
+converterGson = "2.9.0"
+desugar_jdk_libs = "2.1.5"
 foundation = "1.7.8"
 foundationVersion = "1.5.4"
+gradle = "8.1.4"
 gson = "2.10.1"
 kotlin = "2.0.21"
 coreKtx = "1.15.0"
@@ -22,6 +25,8 @@ lifecycleViewmodelKtx = "2.8.7"
 material = "1.7.8"
 materialVersion = "1.5.0"
 navigationCompose = "2.8.8"
+okhttp = "4.9.3"
+retrofitVersion = "2.9.0"
 runtime = "1.7.8"
 ui = "1.7.8"
 uiToolingPreview = "1.7.8"
@@ -47,6 +52,9 @@ androidx-navigation-compose = { module = "androidx.navigation:navigation-compose
 androidx-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "runtime" }
 androidx-ui-v150 = { module = "androidx.compose.ui:ui", version.ref = "androidxUi" }
 androidx-ui-v154 = { module = "androidx.compose.ui:ui", version.ref = "uiVersion" }
+converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
+gradle = { module = "com.android.tools.build:gradle", version.ref = "gradle" }
 gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
@@ -61,6 +69,8 @@ androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-toolin
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+retrofit2-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofitVersion" }
 ui = { module = "androidx.compose.ui:ui", version.ref = "ui" }
 ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "uiToolingPreview" }
 androidx-navigation-runtime-android = { group = "androidx.navigation", name = "navigation-runtime-android", version.ref = "navigationRuntimeAndroid" }

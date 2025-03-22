@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -36,10 +37,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.mainscreen.presentation.ProfileState
+import com.example.mainscreen.presentation.ProfileViewModel
+import com.example.mainscreen.presentation.ProfileViewModelFactory
 
 @Composable
 fun CollectionsScreen(navController: NavHostController) {
+
+    val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModelFactory(
+        LocalContext.current)
+    )
+    val profileState by profileViewModel.profileState
+
+    val goldBalance = (profileState as? ProfileState.Success)?.goldBalance ?: 0
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -135,7 +149,7 @@ fun CollectionsScreen(navController: NavHostController) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "4000",
+                        text = goldBalance.toString(),
                         fontSize = 22.sp,
                         color = Color.Black,
                         textAlign = TextAlign.Center,
@@ -149,7 +163,7 @@ fun CollectionsScreen(navController: NavHostController) {
                     )
 
                     Text(
-                        text = "4000",
+                        text = goldBalance.toString(),
                         fontSize = 22.sp,
                         color = Color.White,
                         textAlign = TextAlign.Center

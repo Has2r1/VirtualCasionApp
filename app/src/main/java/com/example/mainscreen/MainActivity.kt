@@ -11,12 +11,21 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.mainscreen.data.EventsRepository
+import com.example.mainscreen.data.MultiplierRepository
+import com.example.mainscreen.data.TimeRepository
+import com.example.mainscreen.presentation.MainScreenViewModel
+import com.example.mainscreen.presentation.MainScreenViewModelFactory
+import com.example.mainscreen.presentation.TimeViewModel
+import com.example.mainscreen.presentation.TimeViewModelFactory
 import com.example.mainscreen.ui.ProfileScreen
 
 class MainActivity : ComponentActivity() {
@@ -33,10 +42,33 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+
+    val multiplierRepository = MultiplierRepository(context)
+    val eventsRepository = EventsRepository(context)
+
+    val timeViewModel: TimeViewModel = viewModel(factory = TimeViewModelFactory())
+
     NavHost(navController = navController, startDestination = "main") {
-        composable("main") { MainScreen(navController) }
+        composable("main") {
+
+            val mainScreenViewModel: MainScreenViewModel = viewModel(
+                factory = MainScreenViewModelFactory(multiplierRepository, eventsRepository, timeViewModel)
+            )
+            MainScreen(
+                navController = navController,
+                multiplierRepository = multiplierRepository,
+                eventsRepository = eventsRepository,
+                timeViewModel = timeViewModel
+            )
+        }
         composable("automats") { AutomatsScreen(navController) }
-        composable("events") { EventsScreen(navController) }
+        composable("events") {
+            EventsScreen(
+                navController = navController,
+                timeViewModel = timeViewModel
+            )
+        }
         composable("collections") { CollectionsScreen(navController) }
         composable("profile") { ProfileScreen(navController) }
     }

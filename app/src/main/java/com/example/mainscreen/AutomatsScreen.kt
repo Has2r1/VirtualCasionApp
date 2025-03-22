@@ -40,10 +40,24 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.mainscreen.presentation.ProfileState
+import com.example.mainscreen.presentation.ProfileViewModel
+import com.example.mainscreen.presentation.ProfileViewModelFactory
 
 @Composable
 fun AutomatsScreen(navController: NavHostController) {
+
+    val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModelFactory(
+        LocalContext.current)
+    )
+    val profileState by profileViewModel.profileState
+
+    val goldBalance = (profileState as? ProfileState.Success)?.goldBalance ?: 0
+    val diamondBalance = (profileState as? ProfileState.Success)?.diamondBalance ?: 0
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -102,7 +116,7 @@ fun AutomatsScreen(navController: NavHostController) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "4000",
+                        text = goldBalance.toString(),
                         fontSize = 22.sp,
                         color = Color.Black,
                         textAlign = TextAlign.Center,
@@ -116,7 +130,7 @@ fun AutomatsScreen(navController: NavHostController) {
                     )
 
                     Text(
-                        text = "4000",
+                        text = goldBalance.toString(),
                         fontSize = 22.sp,
                         color = Color.White,
                         textAlign = TextAlign.Center

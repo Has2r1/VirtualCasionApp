@@ -9,65 +9,83 @@ import com.example.mainscreen.data.Achievement
 import com.example.mainscreen.data.Profile
 import com.example.mainscreen.data.ProfileRepository
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.State
 
 class ProfileViewModel(private val repository: ProfileRepository) : ViewModel() {
     private val _profileState = mutableStateOf<ProfileState>(ProfileState.Loading)
-    val profileState = _profileState
+    val profileState: State<ProfileState> = _profileState
 
     init {
         loadProfile()
     }
 
     private fun loadProfile() {
-        viewModelScope.launch {
-            try {
-                val profile = repository.getProfile()
-                _profileState.value = ProfileState.Success(profile)
-            } catch (e: Exception) {
-                _profileState.value = ProfileState.Error("Ошибка загрузки профиля")
-            }
+        try {
+            val profile = repository.getProfile()
+            _profileState.value = ProfileState.Success(profile)
+        } catch (e: Exception) {
+            _profileState.value = ProfileState.Error("Failed to load profile: ${e.message}")
         }
     }
 
     fun updateProfile(username: String, avatarResId: Int) {
-        viewModelScope.launch {
-            val updatedProfile = repository.updateProfile(username, avatarResId)
-            _profileState.value = ProfileState.Success(updatedProfile)
+        try {
+            repository.updateProfile(username, avatarResId)
+            loadProfile()
+        } catch (e: Exception) {
+            _profileState.value = ProfileState.Error("Failed to update profile: ${e.message}")
         }
     }
 
-    fun updateStats(newStats: Map<String, Int>) {
-        viewModelScope.launch {
-            val currentProfile = (profileState.value as? ProfileState.Success)?.profile
-            if (currentProfile != null) {
-                val updatedProfile = repository.updateProfile(
-                    username = currentProfile.username,
-                    avatarResId = currentProfile.avatarResId,
-                    stats = newStats
-                )
-                _profileState.value = ProfileState.Success(updatedProfile)
-            }
+    fun updateStats(stats: Map<String, Int>) {
+        try {
+            repository.updateStats(stats)
+            loadProfile()
+        } catch (e: Exception) {
+            _profileState.value = ProfileState.Error("Failed to update stats: ${e.message}")
         }
     }
 
-    fun updateAchievements(newAchievements: List<Achievement>) {
-        viewModelScope.launch {
-            val currentProfile = (profileState.value as? ProfileState.Success)?.profile
-            if (currentProfile != null) {
-                val updatedProfile = repository.updateProfile(
-                    username = currentProfile.username,
-                    avatarResId = currentProfile.avatarResId,
-                    achievements = newAchievements
-                )
-                _profileState.value = ProfileState.Success(updatedProfile)
-            }
+    fun updateAchievements(achievements: List<Achievement>) {
+        try {
+            repository.updateAchievements(achievements)
+            loadProfile()
+        } catch (e: Exception) {
+            _profileState.value = ProfileState.Error("Failed to update achievements: ${e.message}")
+        }
+    }
+
+    // Метод для обновления GoldBalance
+    fun updateGoldBalance(goldBalance: Int) {
+        try {
+            repository.updateGoldBalance(goldBalance)
+            loadProfile()
+        } catch (e: Exception) {
+            _profileState.value = ProfileState.Error("Failed to update gold balance: ${e.message}")
+        }
+    }
+
+    // Метод для обновления DiamondBalance
+    fun updateDiamondBalance(diamondBalance: Int) {
+        try {
+            repository.updateDiamondBalance(diamondBalance)
+            loadProfile()
+        } catch (e: Exception) {
+            _profileState.value = ProfileState.Error("Failed to update diamond balance: ${e.message}")
         }
     }
 }
 
 sealed class ProfileState {
     object Loading : ProfileState()
-    data class Success(val profile: Profile) : ProfileState()
+    data class Success(val profile: Profile) : ProfileState() {
+        val username: String get() = profile.username
+        val avatarResId: Int get() = profile.avatarResId
+        val stats: Map<String, Int> get() = profile.stats
+        val achievements: List<Achievement> get() = profile.achievements
+        val goldBalance: Int get() = profile.goldBalance
+        val diamondBalance: Int get() = profile.diamondBalance
+    }
     data class Error(val message: String) : ProfileState()
 }
 

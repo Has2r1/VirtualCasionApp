@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -20,15 +22,61 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.mainscreen.data.EventsRepository
+import com.example.mainscreen.data.MultiplierRepository
+import com.example.mainscreen.presentation.MainScreenViewModel
+import com.example.mainscreen.presentation.MainScreenViewModelFactory
+import com.example.mainscreen.presentation.ProfileState
+import com.example.mainscreen.presentation.ProfileViewModel
+import com.example.mainscreen.presentation.ProfileViewModelFactory
+import com.example.mainscreen.presentation.TimeViewModel
+import kotlinx.coroutines.delay
 
 @Composable
-fun MainScreen(navController: NavHostController) {
+fun MainScreen(
+    navController: NavHostController,
+    multiplierRepository: MultiplierRepository,
+    eventsRepository: EventsRepository,
+    timeViewModel: TimeViewModel
+    ) {
+
+    val viewModel: MainScreenViewModel = viewModel(
+        factory = MainScreenViewModelFactory(multiplierRepository, eventsRepository, timeViewModel)
+    )
+    val multiplier by viewModel.multiplier
+    val daysUntilReset by viewModel.daysUntilReset
+    val activeEvents by viewModel.activeEvents
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            viewModel.updateMultiplier()
+            viewModel.updateActiveEvents()
+            delay(1_000L)
+        }
+    }
+
+    val profileViewModel: ProfileViewModel = viewModel(factory = ProfileViewModelFactory(LocalContext.current))
+    val profileState by profileViewModel.profileState
+
+    val goldBalance = (profileState as? ProfileState.Success)?.goldBalance ?: 0
+    val diamondBalance = (profileState as? ProfileState.Success)?.diamondBalance ?: 0
+
+    fun getDaysText(days: Int): String {
+        return when {
+            days % 10 == 1 && days % 100 != 11 -> "$days день"
+            days % 10 in 2..4 && days % 100 !in 12..14 -> "$days дня"
+            else -> "$days дней"
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -89,7 +137,7 @@ fun MainScreen(navController: NavHostController) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "4000",
+                        text = goldBalance.toString(),
                         fontSize = 22.sp,
                         color = Color.Black,
                         textAlign = TextAlign.Center,
@@ -103,7 +151,7 @@ fun MainScreen(navController: NavHostController) {
                     )
 
                     Text(
-                        text = "4000",
+                        text = goldBalance.toString(),
                         fontSize = 22.sp,
                         color = Color.White,
                         textAlign = TextAlign.Center
@@ -154,7 +202,7 @@ fun MainScreen(navController: NavHostController) {
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "4000",
+                        text = diamondBalance.toString(),
                         fontSize = 22.sp,
                         color = Color.Black,
                         textAlign = TextAlign.Center,
@@ -168,7 +216,7 @@ fun MainScreen(navController: NavHostController) {
                     )
 
                     Text(
-                        text = "4000",
+                        text = diamondBalance.toString(),
                         fontSize = 22.sp,
                         color = Color.White,
                         textAlign = TextAlign.Center
@@ -177,7 +225,7 @@ fun MainScreen(navController: NavHostController) {
             }
         }
 
-        // x1.3 и 4 дня до сброса (внутри одной плашки)
+        // Плашка с множителем и днями до сброса
         Box(
             modifier = Modifier
                 .align(Alignment.TopStart)
@@ -196,7 +244,7 @@ fun MainScreen(navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = "x 1.3",
+                    text = "x ${String.format("%.1f", multiplier)}",
                     fontSize = 32.sp,
                     color = Color.White,
                     textAlign = TextAlign.Center,
@@ -209,7 +257,7 @@ fun MainScreen(navController: NavHostController) {
                     )
                 )
                 Text(
-                    text = "4 дня до сброса",
+                    text = "${getDaysText(daysUntilReset)} до сброса",
                     fontSize = 20.sp,
                     color = Color.White,
                     textAlign = TextAlign.Center,
@@ -232,9 +280,51 @@ fun MainScreen(navController: NavHostController) {
                 .padding(top = 16.dp, end = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            EventBlock(title = "Добыча рудника", progress = 75, time = "14ч. 20мин.")
-            EventBlock(title = "Завод", progress = 90, time = "14ч.")
-            EventBlock(title = "Лесопилка", progress = 66, time = "34ч.")
+            if (activeEvents.isEmpty()) {
+                // Плашка "Нет активных событий"
+                Card(
+                    modifier = Modifier
+                        .width(350.dp)
+                        .height(150.dp)
+                        .padding(4.dp)
+                        .border(1.dp, Color(0xFF11403F), RoundedCornerShape(20.dp))
+                        .clickable { navController.navigate("events") },
+                    shape = RoundedCornerShape(20.dp),
+                    backgroundColor = Color(0xFF1F7472),
+                    elevation = 4.dp
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Нет активных событий",
+                            fontSize = 24.sp,
+                            color = Color.White,
+                            textAlign = TextAlign.Center,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis,
+                            style = androidx.compose.ui.text.TextStyle(
+                                shadow = androidx.compose.ui.graphics.Shadow(
+                                    color = Color.Black,
+                                    offset = androidx.compose.ui.geometry.Offset(2f, 2f),
+                                    blurRadius = 3f
+                                )
+                            )
+                        )
+                    }
+                }
+            } else {
+                // Отображаем до 3 активных событий
+                activeEvents.forEach { activeEvent ->
+                    EventBlock(
+                        title = activeEvent.event.title,
+                        progress = activeEvent.progress,
+                        time = activeEvent.timeRemaining,
+                        onClick = { navController.navigate("events") }
+                    )
+                }
+            }
         }
 
         // Column для кнопок Коллекции и Игровые Автоматы
@@ -246,7 +336,7 @@ fun MainScreen(navController: NavHostController) {
             // Collections Button
             CollectionsButton { navController.navigate("collections") }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Game Automats Button
             GameAutomatsButton { navController.navigate("automats") }
@@ -264,12 +354,18 @@ fun MainScreen(navController: NavHostController) {
 }
 
 @Composable
-fun EventBlock(title: String, progress: Int, time: String) {
+fun EventBlock(
+    title: String,
+    progress: Int,
+    time: String,
+    onClick: () -> Unit = {} // Добавляем параметр для клика
+) {
     Card(
         modifier = Modifier
             .width(150.dp)
             .height(150.dp)
-            .padding(4.dp),
+            .padding(4.dp)
+            .clickable(onClick = onClick), // Добавляем кликабельность
         shape = RoundedCornerShape(20.dp),
         backgroundColor = Color(0xFF1F7472),
         elevation = 4.dp

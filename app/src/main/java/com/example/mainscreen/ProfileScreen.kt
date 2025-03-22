@@ -61,9 +61,9 @@ fun ProfileScreen(navController: NavHostController) {
     val context = LocalContext.current
     val viewModel: ProfileViewModel = viewModel(factory = ProfileViewModelFactory(context))
     val profileState by viewModel.profileState
-    // Состояние для управления отображением модального окна
+
     val showEditDialog = remember { mutableStateOf(false) }
-    // Инициализируем newUsername текущим значением из profileState
+
     var newUsername by remember {
         mutableStateOf(
             when (profileState) {
@@ -157,9 +157,11 @@ fun ProfileScreen(navController: NavHostController) {
                     .background(Color(0xFF77C5C4))
             ) {
                 Image(
-                    painter = painterResource(id = profileState.let { state ->
-                        if (state is ProfileState.Success) state.profile.avatarResId else R.drawable.ic_avatar
-                    }),
+                    painter = painterResource(
+                        id = when (profileState) {
+                            is ProfileState.Success -> (profileState as ProfileState.Success).profile.avatarResId
+                            else -> R.drawable.ic_avatar
+                        }),
                     contentDescription = "User Avatar",
                     modifier = Modifier
                         .size(36.dp)
@@ -186,8 +188,9 @@ fun ProfileScreen(navController: NavHostController) {
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = profileState.let { state ->
-                        if (state is ProfileState.Success) state.profile.username else "Username"
+                    text = when (profileState) {
+                        is ProfileState.Success -> (profileState as ProfileState.Success).profile.username
+                        else -> "Username"
                     },
                     fontSize = 18.sp,
                     color = Color.White,
